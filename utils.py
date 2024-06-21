@@ -1,8 +1,33 @@
+'''
+Contains components of the game like the Logo, Background, and Button classes, as well as some functionality.
+'''
+
 import pygame
+from typing import Union, List, Callable
 pygame.font.init()
 
 class Logo(pygame.sprite.Sprite):
-    def __init__(self, centerX, centerY, scale):
+    '''
+    Represents the Logo
+    
+    Attributes
+    ----------
+    centerX: int
+    centerY: int
+    scale: Union[int, float]
+    
+    
+    Methods
+    -------
+    rotate():
+        Rotates the logo for animation purposes
+    animate_up():
+        Moves the logo up the screen till a certain point
+    update():
+        Calls all other functions for log update
+    '''
+    
+    def __init__(self, centerX: int, centerY: int, scale: Union[int, float]):
         super().__init__()
         self.centerX = centerX
         self.centerY = centerY
@@ -48,17 +73,47 @@ class Logo(pygame.sprite.Sprite):
         if self.moving_up:
             self.animate_up()
 
-class Background(pygame.sprite.Sprite):
-    def __init__(self, image, centerx, centery, scale=1):
+class Background(pygame.sprite.Sprite): #TODO: Work on background class
+    '''
+    Represents the background objects
+    
+    Attributes
+    ----------
+    image: str
+    centerx: int
+    centery: int
+    scale: Union[int, float]
+    '''
+    def __init__(self, image: str, centerx: int, centery: int, scale: Union[int, float]=1):
         super().__init__()
         self.image = pygame.transform.scale_by(pygame.image.load(image).convert_alpha(), scale)
         self.rect = self.image.get_rect(center=(centerx, centery))
 
 
 class Button(pygame.sprite.Sprite):
+    '''
+    Represents button objects.
+
+    Attributes
+    ----------
+    centerX : int
+    centerY: int
+    scale: Union[int, float]
+    text: str
+    img_list: List[str]
+    function: Callable
+    
+    Methods
+    -------
+    button_hovered():
+        Changes the image of button if mouse hovers over it
+    update():
+        Calls all button updates
+    '''
+    
     ## Img 0 in list is default image, 1 is hovered
 
-    def __init__(self, centerX, centerY, scale, text, img_list: list, function=None):
+    def __init__(self, centerX: int, centerY: int, scale: Union[int, float], text: str, img_list: List[str], function: Callable=None): # TODO: function should not be auto assigned
         super().__init__()
         self.centerX = centerX
         self.centerY = centerY
@@ -96,10 +151,39 @@ class Save_Data():
         self.json = json
         
 
-def path_wrapper(path: str, files: list):
+def path_wrapper(path: str, files: List) -> List[str]:
+    '''
+    Returns a list of file paths
+    
+    
+    Parameters
+    ----------
+    path : str
+        The path that is concatenated with each file in the files list.
+    files : List
+        The files to be concatenated to a path.
+
+    Returns
+    -------
+    List[str]
+        A list containing the full paths of each file passed into files param.
+    '''
     return [f"{path}{img}" for img in files]
 
-def pixel_perfect_collision(object: pygame.sprite.GroupSingle):
+def pixel_perfect_collision(object: pygame.sprite.GroupSingle) -> bool:
+    '''
+    Determines mouse collision for non rectangular shapes.
+    
+    Parameters
+    ----------
+    object : pygame.sprite.GroupSingle
+        The object that is being checked for collision with mouse.
+        
+    Returns
+    -------
+    bool
+        Whether or not mouse intercepts visible pixels in the pygame object.   
+    '''
     mouse_pos = pygame.mouse.get_pos()
     mouse_mask = pygame.mask.from_surface(pygame.Surface((1, 1), pygame.SRCALPHA))  # Create a mask for the mouse cursor
     mouse_mask.set_at((0, 0), 1)  # Set a single pixel in the mask
