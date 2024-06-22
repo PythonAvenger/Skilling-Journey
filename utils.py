@@ -2,8 +2,9 @@
 Contains components of the game like the Logo, Background, and Button classes, as well as some functionality.
 '''
 
-import pygame
 from typing import Union, List, Callable
+
+import pygame
 pygame.font.init()
 
 class Logo(pygame.sprite.Sprite):
@@ -145,13 +146,13 @@ class Button(pygame.sprite.Sprite):
     def update(self):
         self.button_hovered()
 
-
-class Save_Data():
+# TODO: Plan save data formatting
+class SaveData():
     def __init__(self, json):
         self.json = json
         
 
-def path_wrapper(path: str, files: List) -> List[str]:
+def path_wrapper(path: str, files: List[str]) -> List[str]:
     '''
     Returns a list of file paths
     
@@ -160,7 +161,7 @@ def path_wrapper(path: str, files: List) -> List[str]:
     ----------
     path : str
         The path that is concatenated with each file in the files list.
-    files : List
+    files : List[str]
         The files to be concatenated to a path.
 
     Returns
@@ -170,13 +171,13 @@ def path_wrapper(path: str, files: List) -> List[str]:
     '''
     return [f"{path}{img}" for img in files]
 
-def pixel_perfect_collision(object: pygame.sprite.GroupSingle) -> bool:
+def pixel_perfect_collision(item: pygame.sprite.GroupSingle) -> bool:
     '''
     Determines mouse collision for non rectangular shapes.
     
     Parameters
     ----------
-    object : pygame.sprite.GroupSingle
+    item : pygame.sprite.GroupSingle
         The object that is being checked for collision with mouse.
         
     Returns
@@ -188,6 +189,6 @@ def pixel_perfect_collision(object: pygame.sprite.GroupSingle) -> bool:
     mouse_mask = pygame.mask.from_surface(pygame.Surface((1, 1), pygame.SRCALPHA))  # Create a mask for the mouse cursor
     mouse_mask.set_at((0, 0), 1)  # Set a single pixel in the mask
 
-    surface_mask = pygame.mask.from_surface(object.sprite.image)
+    surface_mask = pygame.mask.from_surface(item.sprite.image)
 
-    return surface_mask.overlap(mouse_mask, (mouse_pos[0] - object.sprite.rect.left, mouse_pos[1] - object.sprite.rect.top))
+    return surface_mask.overlap(mouse_mask, (mouse_pos[0] - item.sprite.rect.left, mouse_pos[1] - item.sprite.rect.top))
