@@ -90,7 +90,6 @@ class Background(pygame.sprite.Sprite): #TODO: Work on background class
         self.image = pygame.transform.scale_by(pygame.image.load(image).convert_alpha(), scale)
         self.rect = self.image.get_rect(center=(centerx, centery))
 
-
 class Button(pygame.sprite.Sprite):
     '''
     Represents button objects.
@@ -114,7 +113,7 @@ class Button(pygame.sprite.Sprite):
     
     ## Img 0 in list is default image, 1 is hovered
 
-    def __init__(self, centerX: int, centerY: int, scale: Union[int, float], text: str, img_list: List[str], function: Callable=None): # TODO: function should not be auto assigned
+    def __init__(self, centerX: int, centerY: int, scale: Union[int, float], text: str, img_list: List[str], function: Callable=None): # FIXME: function should not be auto assigned
         super().__init__()
         self.centerX = centerX
         self.centerY = centerY
@@ -145,12 +144,50 @@ class Button(pygame.sprite.Sprite):
 
     def update(self):
         self.button_hovered()
+        if self.clicked:
+            self.function()
+            self.clicked = False
 
 # TODO: Plan save data formatting
 class SaveData():
     def __init__(self, json):
         self.json = json
+
+# TODO: Make more friendly to use in code, a but difficult to use. Also make a doctstring
+class SpriteSheet():
+    def __init__(self, file, rows, columns, width, length):
+        self.file = file
+        self.sprites = self.get_sprites(rows, columns, width, length)
+
+    def get_sprites(self, rows, columns, width, length):
+        spritesheet = pygame.image.load(self.file).convert_alpha()
+
+        x = 0
+        y = 0
+        sprites = []
         
+        for row in range(rows):
+            for column in range(columns):
+                sprite = pygame.Surface((width, length))
+                sprite.blit(spritesheet, (0, 0), pygame.Rect(x, y, x + width, y + length))
+                sprites.append(SpriteSheetImage(sprite, row, column, width, length))
+                
+                print(f"Row: {row}")
+                print(f"Column: {column}")
+                print(f"({x}, {y})")
+                x += width
+            y += length
+            x = 0
+
+        return sprites
+    
+class SpriteSheetImage():
+    def __init__(self, image: pygame.Surface, row, column, width, length):
+        self.image = image
+        self.row = row
+        self.column = column
+        self.width = width
+        self.length = length
 
 def path_wrapper(path: str, files: List[str]) -> List[str]:
     '''
