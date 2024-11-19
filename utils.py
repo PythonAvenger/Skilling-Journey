@@ -1,23 +1,22 @@
-'''
+"""
 Contains components of the game like the Logo, Background, and Button classes, as well as some functionality.
-'''
+"""
 
 from typing import Union, List, Callable
-
 import pygame
+
 pygame.font.init()
 
 class Logo(pygame.sprite.Sprite):
-    '''
+    """
     Represents the Logo
-    
-    Attributes
+
+    Parameters
     ----------
-    centerX: int
-    centerY: int
+    center_x: int
+    center_y: int
     scale: Union[int, float]
-    
-    
+
     Methods
     -------
     rotate():
@@ -26,16 +25,16 @@ class Logo(pygame.sprite.Sprite):
         Moves the logo up the screen till a certain point
     update():
         Calls all other functions for log update
-    '''
+    """
     
-    def __init__(self, centerX: int, centerY: int, scale: Union[int, float]):
+    def __init__(self, center_x: int, center_y: int, scale: Union[int, float]):
         super().__init__()
-        self.centerX = centerX
-        self.centerY = centerY
+        self.centerX = center_x
+        self.centerY = center_y
 
         self.original_image = pygame.transform.scale_by(pygame.image.load("assets/images/logo.png").convert_alpha(), scale)
         self.image = self.original_image
-        self.rect = self.image.get_rect(center=(centerX, centerY))
+        self.rect = self.image.get_rect(center=(center_x, center_y))
 
         self.angle = 0
         self.angle_increment = 0.12
@@ -74,49 +73,50 @@ class Logo(pygame.sprite.Sprite):
         if self.moving_up:
             self.animate_up()
 
-class Background(pygame.sprite.Sprite): #TODO: Work on background class
-    '''
+class Background(pygame.sprite.Sprite): # TODO: Work on background class
+    """
     Represents the background objects
-    
-    Attributes
+
+    Parameters
     ----------
     image: str
-    centerx: int
-    centery: int
+    center_x: int
+    center_y: int
     scale: Union[int, float]
-    '''
-    def __init__(self, image: str, centerx: int, centery: int, scale: Union[int, float]=1):
+    """
+
+    def __init__(self, image: str, center_x: int, center_y: int, scale: Union[int, float]=1):
         super().__init__()
         self.image = pygame.transform.scale_by(pygame.image.load(image).convert_alpha(), scale)
-        self.rect = self.image.get_rect(center=(centerx, centery))
+        self.rect = self.image.get_rect(center=(center_x, center_y))
 
 class Button(pygame.sprite.Sprite):
-    '''
+    """
     Represents button objects.
 
-    Attributes
+    Parameters
     ----------
-    centerX : int
-    centerY: int
+    center_x : int
+    center_y: int
     scale: Union[int, float]
     text: str
     img_list: List[str]
     function: Callable
-    
+
     Methods
     -------
     button_hovered():
         Changes the image of button if mouse hovers over it
     update():
         Calls all button updates
-    '''
+    """
     
     ## Img 0 in list is default image, 1 is hovered
 
-    def __init__(self, centerX: int, centerY: int, scale: Union[int, float], text: str, img_list: List[str], function: Callable=None): # FIXME: function should not be auto assigned
+    def __init__(self, center_x: int, center_y: int, scale: Union[int, float], text: str, img_list: List[str], function: Callable=None):
         super().__init__()
-        self.centerX = centerX
-        self.centerY = centerY
+        self.centerX = center_x
+        self.centerY = center_y
         self.scale = scale
 
         # TBD: Want to make individual functions for each button, but the whole game object has to be passed in as a parameter
@@ -153,47 +153,73 @@ class SaveData():
     def __init__(self, json):
         self.json = json
 
-# TODO: Make more friendly to use in code, a but difficult to use. Also make a doctstring
-class SpriteSheet():
-    def __init__(self, file, rows, columns, width, length):
-        self.file = file
-        self.sprites = self.get_sprites(rows, columns, width, length)
 
-    def get_sprites(self, rows, columns, width, length):
-        spritesheet = pygame.image.load(self.file).convert_alpha()
+class SpriteSheetImage:
+    """
+    Represents sprites found in spritesheets.
 
-        x = 0
-        y = 0
-        sprites = []
-        
-        for row in range(rows):
-            for column in range(columns):
-                sprite = pygame.Surface((width, length))
-                sprite.blit(spritesheet, (0, 0), pygame.Rect(x, y, x + width, y + length))
-                sprites.append(SpriteSheetImage(sprite, row, column, width, length))
-                
-                print(f"Row: {row}")
-                print(f"Column: {column}")
-                print(f"({x}, {y})")
-                x += width
-            y += length
-            x = 0
-
-        return sprites
-    
-class SpriteSheetImage():
-    def __init__(self, image: pygame.Surface, row, column, width, length):
+    Parameters
+    ----------
+    image : pygame.Surface
+    row : int
+    column : int
+    width : int
+    height : int
+    """
+    def __init__(self, image: pygame.Surface, row: int, column: int, width: int, height: int):
         self.image = image
         self.row = row
         self.column = column
         self.width = width
-        self.length = length
+        self.height = height
+        
+
+class SpriteSheet:
+    """
+    Class for separating spritesheets objects into individual pieces.
+
+    Attributes
+    ----------
+    file : str
+    sprites : List[SpriteSheetImage]
+
+    Methods
+    -------
+    get_sprites():
+        Return a list of every individual sprite in the spritesheet in order of left to right and top to bottom.
+    """
+    def __init__(self, file: str, rows: int, columns: int, width: int, height: int, scale: Union[int, float]=1):
+        self.file = file
+        self.sprites = self.get_sprites(rows, columns, width, height, scale)
+
+    def get_sprites(self, rows: int, columns: int, width: int, height: int, scale: Union[int, float]) -> List[SpriteSheetImage]:
+        spritesheet = pygame.image.load(self.file).convert_alpha()
+        spritesheet = pygame.transform.scale_by(spritesheet, scale)
+
+
+        x = 0
+        y = 0
+        width, height = width*scale, height*scale
+        sprites = []
+        
+        for row in range(rows):
+            for column in range(columns):
+                sprite = pygame.Surface((width, height))
+                sprite.blit(spritesheet, (0, 0), pygame.Rect(x, y, x + width, y + height))
+                sprites.append(SpriteSheetImage(sprite, row, column, width, height))
+                
+                x += width
+            y += height
+            x = 0
+
+        return sprites
+    
 
 def path_wrapper(path: str, files: List[str]) -> List[str]:
-    '''
+    """
     Returns a list of file paths
-    
-    
+
+
     Parameters
     ----------
     path : str
@@ -205,23 +231,23 @@ def path_wrapper(path: str, files: List[str]) -> List[str]:
     -------
     List[str]
         A list containing the full paths of each file passed into files param.
-    '''
+    """
     return [f"{path}{img}" for img in files]
 
 def pixel_perfect_collision(item: pygame.sprite.GroupSingle) -> bool:
-    '''
-    Determines mouse collision for non rectangular shapes.
-    
+    """
+    Determines mouse collision for non-rectangular shapes.
+
     Parameters
     ----------
     item : pygame.sprite.GroupSingle
         The object that is being checked for collision with mouse.
-        
+
     Returns
     -------
     bool
-        Whether or not mouse intercepts visible pixels in the pygame object.   
-    '''
+        Whether mouse intercepts visible pixels in the pygame object.
+    """
     mouse_pos = pygame.mouse.get_pos()
     mouse_mask = pygame.mask.from_surface(pygame.Surface((1, 1), pygame.SRCALPHA))  # Create a mask for the mouse cursor
     mouse_mask.set_at((0, 0), 1)  # Set a single pixel in the mask

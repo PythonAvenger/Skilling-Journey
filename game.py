@@ -2,8 +2,17 @@ import pygame
 import sys
 from utils import *
 
-class Game():
+class Game:
     def __init__(self, tick_speed):
+        self.home_gui = None
+        self.home_buttons = None
+        self.background = None
+        self.quit_button = None
+        self.settings_button = None
+        self.saves_button = None
+        self.start_button = None
+        self.logo = None
+
         pygame.init()
 
         self.WIDTH = 1024
@@ -48,9 +57,9 @@ class Game():
 
     
     def render(self, render_order: List[pygame.sprite.GroupSingle]=None):
-        '''
+        """
         Renders each object in a list to the screen
-        '''
+        """
         self.window.fill(self.bg_color)
         for component in render_order:
             component.draw(self.window)
